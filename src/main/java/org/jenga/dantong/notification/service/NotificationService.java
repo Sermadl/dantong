@@ -6,7 +6,7 @@ import com.google.firebase.messaging.WebpushConfig;
 import com.google.firebase.messaging.WebpushNotification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jenga.dantong.notification.repository.NotificationRedisRepository;
+import org.jenga.dantong.notification.repository.NotificationRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -17,7 +17,7 @@ import java.util.Map;
 @Slf4j
 public class NotificationService {
 
-    private final NotificationRedisRepository notificationRedisRepository;
+    private final NotificationRepository notificationRepository;
     private final Map<Long, String> tokenMap = new HashMap<>();
 
     public void sendEventNotification(String studentId) {
@@ -26,10 +26,13 @@ public class NotificationService {
         }
         String token = getToken(studentId);
         Message message = Message.builder()
-                .setWebpushConfig(WebpushConfig.builder().putHeader("ttl", "300")
-                        .setNotification(new WebpushNotification("신청 완료 알림",
-                                "신청이 완료되었습니다."))
-                        .build())
+                .setWebpushConfig(
+                        WebpushConfig.builder()
+                                .putHeader("ttl", "300")
+                                .setNotification(new WebpushNotification("신청 완료 알림",
+                                        "신청이 완료되었습니다."))
+                                .build()
+                )
                 .setToken(token)
                 .build();
         send(message);
@@ -41,14 +44,14 @@ public class NotificationService {
     }
 
     private String getToken(String studentId) {
-        return notificationRedisRepository.getToken(studentId);
+        return notificationRepository.getToken(studentId);
     }
 
     private boolean hasKey(String studentId) {
-        return notificationRedisRepository.hasKey(studentId);
+        return notificationRepository.hasKey(studentId);
     }
 
-    public void register(final Long userId, final String token) {
-        tokenMap.put(userId, token);
+    public void register(final Long userId, final String studentId) {
+        tokenMap.put(userId, studentId);
     }
 }
