@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.jenga.dantong.global.auth.jwt.AppAuthentication;
 import org.jenga.dantong.global.base.UserAuth;
-import org.jenga.dantong.notification.service.NotificationService;
+import org.jenga.dantong.notification.service.FcmService;
 import org.jenga.dantong.survey.model.dto.request.SurveySubmitCreateRequest;
 import org.jenga.dantong.survey.model.dto.response.SurveySubmitResponse;
 import org.jenga.dantong.survey.service.SurveySubmitService;
@@ -22,7 +22,7 @@ import java.util.List;
 public class SurveySubmitController {
 
     private final SurveySubmitService surveySubmitService;
-    private final NotificationService notificationService;
+    private final FcmService fcmService;
     private final UserRepository userRepository;
 
     @PostMapping()
@@ -32,7 +32,7 @@ public class SurveySubmitController {
                             AppAuthentication auth) {
         User user = userRepository.findById(auth.getUserId()).orElseThrow(UserNotFoundException::new);
         surveySubmitService.createSubmit(request, auth.getUserId());
-        notificationService.sendEventNotification(user.getStudentId());
+        fcmService.sendEventNotification(user.getStudentId());
     }
 
     @DeleteMapping("/{submitId}")

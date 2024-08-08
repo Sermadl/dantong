@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jenga.dantong.global.auth.jwt.AppAuthentication;
 import org.jenga.dantong.global.base.UserAuth;
-import org.jenga.dantong.notification.repository.NotificationRepository;
+import org.jenga.dantong.notification.service.FcmService;
 import org.jenga.dantong.user.exception.UserNotFoundException;
 import org.jenga.dantong.user.model.dto.request.LoginRequest;
 import org.jenga.dantong.user.model.dto.request.RefreshTokenRequest;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserSignupService userSignupService;
-    private final NotificationRepository notificationRepository;
+    private final FcmService fcmService;
     private final UserRepository userRepository;
 
     @GetMapping
@@ -41,7 +41,7 @@ public class UserController {
     @PostMapping(path = "/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Validated LoginRequest loginRequest) {
         LoginResponse loginResponse = userSignupService.login(loginRequest);
-        notificationRepository.saveToken(loginRequest);
+//        fcmService.register(loginRequest);
         return ResponseEntity.ok(loginResponse);
     }
 
@@ -50,7 +50,7 @@ public class UserController {
     public void logout(AppAuthentication auth) {
         User user = userRepository.findById(auth.getUserId())
                 .orElseThrow(UserNotFoundException::new);
-        notificationRepository.deleteToken(user.getStudentId());
+        fcmService.deleteToken(user.getStudentId());
     }
 
     @PostMapping(path = "/reissue")
