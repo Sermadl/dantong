@@ -1,5 +1,6 @@
 package org.jenga.dantong.notification.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jenga.dantong.global.auth.jwt.AppAuthentication;
@@ -26,12 +27,14 @@ public class NotificationController {
 
     @UserAuth
     @PostMapping("/register")
+    @Operation(summary = "FCM 토큰 등록하기", description = "리액트에서 발급받은 토큰 입력")
     public void register(@RequestBody NotificationRequest request, AppAuthentication auth) {
         fcmService.register(request);
     }
 
     @UserAuth
     @PostMapping("/send")
+    @Operation(summary = "백그라운드 알림 테스트")
     public void send(AppAuthentication auth) {
         User user = userRepository.findById(auth.getUserId())
                 .orElseThrow(UserNotFoundException::new);
