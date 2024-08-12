@@ -32,7 +32,7 @@ public class SurveySubmitController {
                             AppAuthentication auth) {
         User user = userRepository.findById(auth.getUserId()).orElseThrow(UserNotFoundException::new);
         surveySubmitService.createSubmit(request, auth.getUserId());
-        fcmService.sendEventNotification(user.getStudentId());
+        fcmService.sendSubmitNotification(user.getStudentId());
     }
 
     @DeleteMapping("/{submitId}")
