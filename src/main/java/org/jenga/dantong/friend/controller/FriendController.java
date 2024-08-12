@@ -39,7 +39,7 @@ public class FriendController {
 
     @UserAuth
     @PostMapping("/accept/{friendId}")
-    public void acceptRequeest(@PathVariable("friendId") Long friendId, AppAuthentication auth) {
+    public void acceptRequest(@PathVariable("friendId") Long friendId, AppAuthentication auth) {
         friendService.acceptRequest(friendId, auth.getUserId());
     }
 

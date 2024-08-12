@@ -63,6 +63,8 @@ dependencies {
     // fcm
     implementation 'com.google.firebase:firebase-admin:9.2.0'
 
+    implementation 'org.jsoup:jsoup:1.15.4'
+
 }
 tasks.named('test') {
     outputs.dir snippetsDir
