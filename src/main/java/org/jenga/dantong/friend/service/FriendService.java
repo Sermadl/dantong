@@ -130,8 +130,9 @@ public class FriendService {
         return requests.map(currFriend -> {
             String studentId = currFriend.getFriend().getStudentId();
             String name = currFriend.getFriend().getName();
+            Major major = currFriend.getFriend().getMajor();
             Long friendshipId = currFriend.getId();
-            return new RequestListResponse(studentId, name, friendshipId);
+            return new RequestListResponse(studentId, name, major, friendshipId);
         });
     }
 
