@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jenga.dantong.friend.model.dto.response.FriendListResponse;
 import org.jenga.dantong.friend.model.dto.response.RequestListResponse;
+import org.jenga.dantong.friend.model.dto.response.SubmitFriendListResponse;
 import org.jenga.dantong.friend.service.FriendService;
 import org.jenga.dantong.global.auth.jwt.AppAuthentication;
 import org.jenga.dantong.global.base.UserAuth;
@@ -41,10 +42,24 @@ public class FriendController {
     }
 
     @UserAuth
-    @PostMapping("/accept/{friendId}")
+    @PostMapping("/accept/{friendshipId}")
     @Operation(summary = "친구 요청 수락", description = "친구 요청 Id로 친구 요청 수락")
-    public void acceptRequest(@PathVariable("friendId") Long friendId, AppAuthentication auth) {
+    public void acceptRequest(@PathVariable("friendshipId") Long friendId, AppAuthentication auth) {
         friendService.acceptRequest(friendId, auth.getUserId());
+    }
+
+    @UserAuth
+    @DeleteMapping("/deleteRequest/{friendshipId}")
+    @Operation(summary = "친구 요청 삭제", description = "친구 요청 Id로 친구 요청 삭제")
+    public void deleteRequest(@PathVariable("friendshipId") Long friendId, AppAuthentication auth) {
+        friendService.deleteRequest(friendId, auth.getUserId());
+    }
+
+    @UserAuth
+    @DeleteMapping("/deleteFriend/{friendshipId}")
+    @Operation(summary = "친구 삭제", description = "친구 Id로 친구 삭제")
+    public void deleteFriend(@PathVariable("friendshipId") Long friendshipId, AppAuthentication auth) {
+        friendService.deleteFriend(friendshipId, auth.getUserId());
     }
 
     @UserAuth

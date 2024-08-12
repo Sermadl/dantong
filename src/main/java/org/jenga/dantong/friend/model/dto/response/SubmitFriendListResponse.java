@@ -8,8 +8,7 @@ import org.jenga.dantong.user.model.entity.Major;
 @Getter
 @Setter
 @AllArgsConstructor
-public class FriendListResponse {
-    Long friendshipId;
+public class SubmitFriendListResponse {
     String studentId;
     Major major;
     String name;
