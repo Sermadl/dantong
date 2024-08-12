@@ -162,7 +162,7 @@ public class FriendService {
         return surveyService.getTickets(friend.getId());
     }
 
-    public List<FriendListResponse> viewSubmitByPost(Long postId, Long userId) {
+    public List<SubmitFriendListResponse> viewSubmitByPost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNofFoundException::new);
 
@@ -171,12 +171,18 @@ public class FriendService {
 
         Survey survey = post.getSurvey();
 
-        return surveySubmitRepository.findBySurvey(survey).stream().map(currSubmit -> {
-                    String studentId = currSubmit.getUser().getStudentId();
-                    Major major = currSubmit.getUser().getMajor();
-                    String name = currSubmit.getUser().getName();
+        List<Friend> friends = user.getFriendList();
+        for (Friend friend : friends) {
+            log.info("friend: ");
+            log.info(friend.getUserStudentId());
+        }
 
-                    return new FriendListResponse(studentId, major, name);
+        return friends.stream()
+                .filter(currFriend -> {
+                    return surveySubmitRepository.findByUserAndSurvey(
+                            userRepository.findByStudentId(currFriend.getUserStudentId())
+                            .orElseThrow(UserNotFoundException::new)
+                            , survey).isPresent();
                 })
                 .map(currFriend -> {
                     User friend = userRepository.findByStudentId(currFriend.getUserStudentId())

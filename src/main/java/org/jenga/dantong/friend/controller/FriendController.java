@@ -79,7 +79,7 @@ public class FriendController {
     @UserAuth
     @GetMapping("/submit-list/postId/{postId}")
     @Operation(summary = "게시글에서 신청한 친구 리스트 확인하기", description = "친구 등록 후 postId로 조회 가능")
-    public ResponseEntity<List<FriendListResponse>> viewSubmitAtPost(@PathVariable("postId") Long postId, AppAuthentication auth) {
+    public ResponseEntity<List<SubmitFriendListResponse>> viewSubmitAtPost(@PathVariable("postId") Long postId, AppAuthentication auth) {
         return ResponseEntity.ok(friendService.viewSubmitByPost(postId, auth.getUserId()));
     }
 }
