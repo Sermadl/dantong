@@ -1,5 +1,6 @@
 package org.jenga.dantong.friend.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,36 +28,42 @@ public class FriendController {
 
     @UserAuth
     @PostMapping("/send/{studentId}")
+    @Operation(summary = "친구 요청 보내기", description = "학번으로 친구 요청 보내기")
     public void sendRequest(@Valid @PathVariable("studentId") String studentId, AppAuthentication auth) {
         friendService.sendRequest(studentId, auth.getUserId());
     }
 
     @UserAuth
     @GetMapping("/request")
+    @Operation(summary = "받은 친구 요청 리스트 조회", description = "권한 확인 후 요청 리스트 조회")
     public ResponseEntity<Page<RequestListResponse>> getRequestList(AppAuthentication auth, Pageable pageable) {
         return ResponseEntity.ok(friendService.getRequestList(auth.getUserId(), pageable));
     }
 
     @UserAuth
     @PostMapping("/accept/{friendId}")
+    @Operation(summary = "친구 요청 수락", description = "친구 요청 Id로 친구 요청 수락")
     public void acceptRequest(@PathVariable("friendId") Long friendId, AppAuthentication auth) {
         friendService.acceptRequest(friendId, auth.getUserId());
     }
 
     @UserAuth
     @GetMapping("/list")
+    @Operation(summary = "친구 리스트 조회", description = "권한 확인 후 친구 리스트 조회")
     public ResponseEntity<Page<FriendListResponse>> getFriendList(AppAuthentication auth, Pageable pageable) {
         return ResponseEntity.ok(friendService.getFriendList(auth.getUserId(), pageable));
     }
 
     @UserAuth
     @GetMapping("/submit-list/studentId/{friendStudentId}")
+    @Operation(summary = "친구 학번으로 친구가 신청한 행사 리스트 확인하기", description = "친구 등록 후 친구 학번으로 조회 가능")
     public ResponseEntity<List<TicketResponse>> viewFriendSubmit(@PathVariable("friendStudentId") String studentId, AppAuthentication auth) {
         return ResponseEntity.ok(friendService.viewSubmitByStudentId(studentId, auth.getUserId()));
     }
 
     @UserAuth
     @GetMapping("/submit-list/postId/{postId}")
+    @Operation(summary = "게시글에서 신청한 친구 리스트 확인하기", description = "친구 등록 후 postId로 조회 가능")
     public ResponseEntity<List<FriendListResponse>> viewSubmitAtPost(@PathVariable("postId") Long postId, AppAuthentication auth) {
         return ResponseEntity.ok(friendService.viewSubmitByPost(postId, auth.getUserId()));
     }
