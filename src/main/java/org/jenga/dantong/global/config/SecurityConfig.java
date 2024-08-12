@@ -149,6 +149,7 @@ public class SecurityConfig {
                     authorizeRequests.requestMatchers("/submit/**").permitAll();
                     authorizeRequests.requestMatchers("/excel/**").permitAll();
                     authorizeRequests.requestMatchers("/friend/**").permitAll();
+                    authorizeRequests.requestMatchers("/notification/**").permitAll();
                 })
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(exceptionHandlerFilter(), JwtAuthenticationFilter.class)

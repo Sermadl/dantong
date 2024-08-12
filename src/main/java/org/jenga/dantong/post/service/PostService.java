@@ -55,7 +55,7 @@ public class PostService {
                 .startDate(request.getStartTime())
                 .endDate(request.getEndTime())
                 .build();
-        log.info(request.getTitle());
+        
         if (request.getImageFiles() != null) {
             saveFiles(request.getImageFiles(), post);
         }
