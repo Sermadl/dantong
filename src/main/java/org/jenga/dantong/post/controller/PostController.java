@@ -1,5 +1,6 @@
 package org.jenga.dantong.post.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jenga.dantong.global.auth.jwt.AppAuthentication;
@@ -26,6 +27,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "게시글 생성")
     @UserAuth
     public void post(@ModelAttribute @Validated PostCreateRequest postSaveRequest,
                      AppAuthentication auth) {
@@ -34,6 +36,7 @@ public class PostController {
     }
 
     @GetMapping("/{postId}")
+    @Operation(summary = "게시글 조회", description = "postId로 게시글 조회")
     public ResponseEntity<PostResponse> findPost(@PathVariable(name = "postId") Long postId) {
         PostResponse post = postService.findPost(postId);
 
@@ -41,6 +44,7 @@ public class PostController {
     }
 
     @PatchMapping("/edit")
+    @Operation(summary = "게시글 수정", description = "권한 확인 후 게시글 정보 모두 입력하여 게시글 수정")
     @UserAuth
     public void edit(@RequestBody @Validated PostUpdateRequest post,
                      AppAuthentication auth) {
@@ -49,6 +53,7 @@ public class PostController {
     }
 
     @GetMapping("/list")
+    @Operation(summary = "전체 게시글 리스트 조회")
     public ResponseEntity<Page<PostPreviewResponse>> list(
             @RequestParam(required = false, name = "category") Category category,
             Pageable pageable) {
@@ -63,6 +68,7 @@ public class PostController {
 
 
     @DeleteMapping("/{postId}")
+    @Operation(summary = "게시글 삭제", description = "token과 postId로 권한 확인 후 게시글 삭제")
     @UserAuth
     public void delete(@PathVariable("postId") Long postId,
                        AppAuthentication auth) throws Exception {
