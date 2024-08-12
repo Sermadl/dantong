@@ -34,7 +34,6 @@ public class Friend extends BaseEntity {
     private FriendStatus status;
     @NotNull
     private boolean isFrom;
-    @NotNull
     private Long counterpartId;
 
     public void acceptRequest() {

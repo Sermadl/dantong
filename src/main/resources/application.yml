@@ -57,6 +57,7 @@ cloud:
       secret-key: ${aws.s3.secret-key}
     stack:
       auto: false
-
+fcm:
+  certification: ${fcm.certification}
 file:
   path: ${user.home}/

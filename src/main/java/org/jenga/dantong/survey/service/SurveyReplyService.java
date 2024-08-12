@@ -124,7 +124,7 @@ public class SurveyReplyService {
             Survey survey = currSubmit.getSurvey();
 
             return new SurveyUserAllReplyResponse(currSubmit.getId(),
-                currSubmit.getSurvey().getSurveyId(), survey.getTitle(),
+                survey.getSurveyId(), survey.getTitle(),
                 survey.getStartTime(), survey.getEndTime(), Util.getProgress(survey));
         });
     }
