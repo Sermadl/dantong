@@ -18,6 +18,7 @@ import org.jenga.dantong.survey.model.entity.Survey;
 import org.jenga.dantong.survey.repository.SurveySubmitRepository;
 import org.jenga.dantong.survey.service.SurveyService;
 import org.jenga.dantong.user.exception.UserNotFoundException;
+import org.jenga.dantong.user.model.entity.Major;
 import org.jenga.dantong.user.model.entity.User;
 import org.jenga.dantong.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -129,16 +130,19 @@ public class FriendService {
         return requests.map(currFriend -> {
             String studentId = currFriend.getFriend().getStudentId();
             String name = currFriend.getFriend().getName();
+            Major major = currFriend.getFriend().getMajor();
             Long friendshipId = currFriend.getId();
-            return new RequestListResponse(studentId, name, friendshipId);
+            return new RequestListResponse(studentId, name, major, friendshipId);
         });
     }
 
     private Page<FriendListResponse> getFriendListResponses(Page<Friend> friends) {
         return friends.map(currFriend -> {
             String studentId = currFriend.getFriend().getStudentId();
+            Major major = currFriend.getFriend().getMajor();
             String name = currFriend.getFriend().getName();
-            return new FriendListResponse(studentId, name);
+
+            return new FriendListResponse(studentId, major, name);
         });
     }
 
@@ -166,9 +170,10 @@ public class FriendService {
 
         return surveySubmitRepository.findBySurvey(survey).stream().map(currSubmit -> {
                     String studentId = currSubmit.getUser().getStudentId();
+                    Major major = currSubmit.getUser().getMajor();
                     String name = currSubmit.getUser().getName();
 
-                    return new FriendListResponse(studentId, name);
+                    return new FriendListResponse(studentId, major, name);
                 })
                 .filter(currSubmit -> !currSubmit.getStudentId().equals(user.getStudentId()))
                 .toList();
