@@ -23,7 +23,7 @@ public class Friend extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_Id")
+    @JoinColumn(name = "user_Id") // 친구의 userId임
     private User friend;
 
     @NotNull
