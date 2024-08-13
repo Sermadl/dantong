@@ -1,6 +1,7 @@
 package org.jenga.dantong.user.model;
 
 import java.util.function.Consumer;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
 public class DkuAuth {

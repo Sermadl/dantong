@@ -33,7 +33,7 @@ security:
   jwt:
     token:
       secret-key: ${JWT-KEY}
-      expire-length: P1D
+      expire-length: 1H
       expire-length-refresh: P15D
 nhn:
   email:

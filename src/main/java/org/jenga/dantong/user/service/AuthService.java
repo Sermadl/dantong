@@ -10,6 +10,7 @@ import org.jenga.dantong.user.model.DkuAuth;
 import org.jenga.dantong.user.model.dto.UserInfo;
 import org.jenga.dantong.user.model.dto.request.DkuInfoRequest;
 import org.jenga.dantong.user.model.dto.response.StudentInfo;
+import org.jenga.dantong.user.model.dto.response.VerifiedStudentResponse;
 import org.jenga.dantong.user.model.entity.User;
 import org.jenga.dantong.user.repository.SignupRedisRepository;
 import org.jenga.dantong.user.repository.UserRepository;
@@ -26,6 +27,8 @@ public class AuthService {
     private final SignupRedisRepository redisRepository;
     private final DkuAuthService dkuAuthService;
 
+    private final DkuCrawlService dkuCrawlService;
+
     private final SignupRedisRepository signupRedisRepository;
 
 
@@ -38,18 +41,21 @@ public class AuthService {
         return redisRepository.deleteAuthPayload(signupToken, DKU_AUTH_NAME);
     }
 
-    public void verifyDkuInfo(DkuInfoRequest request) {
+    public VerifiedStudentResponse verifyDkuInfo(DkuInfoRequest request) {
         String signupToken = UUID.randomUUID().toString();
         checkAlreadyStudentId(request.getDkuId());
 
         StudentInfo info = getDkuInfo(request.getDkuId(), request.getDkuPassword());
         signupRedisRepository.setAuthPayload(signupToken, DKU_AUTH_NAME, info, Instant.now(clock));
+
+        return new VerifiedStudentResponse(signupToken, info);
+
     }
 
     public StudentInfo getDkuInfo(String id, String password) {
         DkuAuth auth = dkuAuthService.loginWebInfo(id, password);
-        //TODO crawlerService 구현
-        StudentInfo studentInfo = crawlerService.crawlStudentInfo(auth);
+
+        StudentInfo studentInfo = dkuCrawlService.crawlStudentInfo(auth);
         return studentInfo;
     }
 
