@@ -15,7 +15,9 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
 
     Page<Friend> findByUserStudentIdAndStatus(Pageable pageable, String studentId, FriendStatus status);
 
-    Optional<Friend> findByUserStudentIdAndFriendStudentIdAndStatus(String userId, String friendId, FriendStatus status);
+    Optional<Friend> findByUserStudentIdAndFriendStudentIdAndStatus(String userId, String friendStudentId, FriendStatus status);
 
-    Optional<Friend> findByUserStudentIdAndFriendStudentIdAndStatusAndIsFrom(String userId, String friendId, FriendStatus status, Boolean isFrom);
+    Optional<Friend> findByUserStudentIdAndFriendStudentIdAndStatusAndIsFrom(String userId, String friendStudentId, FriendStatus status, Boolean isFrom);
+
+    Optional<Friend> findByIdAndUserStudentIdAndStatus(Long friendId, String userStudentId, FriendStatus status);
 }

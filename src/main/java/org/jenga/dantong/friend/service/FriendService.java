@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.jenga.dantong.friend.exception.*;
 import org.jenga.dantong.friend.model.dto.response.FriendListResponse;
 import org.jenga.dantong.friend.model.dto.response.RequestListResponse;
+import org.jenga.dantong.friend.model.dto.response.SubmitFriendListResponse;
 import org.jenga.dantong.friend.model.entity.Friend;
 import org.jenga.dantong.friend.model.entity.FriendStatus;
 import org.jenga.dantong.friend.repository.FriendRepository;
@@ -13,11 +14,13 @@ import org.jenga.dantong.post.exception.PermissionDeniedException;
 import org.jenga.dantong.post.exception.PostNofFoundException;
 import org.jenga.dantong.post.model.entity.Post;
 import org.jenga.dantong.post.repository.PostRepository;
+import org.jenga.dantong.survey.exception.SurveySubmitNotFoundException;
 import org.jenga.dantong.survey.model.dto.response.TicketResponse;
 import org.jenga.dantong.survey.model.entity.Survey;
 import org.jenga.dantong.survey.repository.SurveySubmitRepository;
 import org.jenga.dantong.survey.service.SurveyService;
 import org.jenga.dantong.user.exception.UserNotFoundException;
+import org.jenga.dantong.user.model.entity.Major;
 import org.jenga.dantong.user.model.entity.User;
 import org.jenga.dantong.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -60,27 +63,27 @@ public class FriendService {
         /**
          * 보내는 쪽
          */
-        Friend friendTo = Friend.builder()
+        Friend friendFrom = Friend.builder()
                 .friend(toUser)
                 .userStudentId(fromUser.getStudentId())
                 .friendStudentId(toUser.getStudentId())
                 .status(FriendStatus.WAITING)
-                .isFrom(false)
+                .isFrom(true)
                 .build();
 
         /**
          * 받는 쪽
          */
-        Friend friendFrom = Friend.builder()
+        Friend friendTo = Friend.builder()
                 .friend(fromUser)
                 .userStudentId(toUser.getStudentId())
                 .friendStudentId(fromUser.getStudentId())
                 .status(FriendStatus.WAITING)
-                .isFrom(true)
+                .isFrom(false)
                 .build();
 
-        toUser.getFriendList().add(friendFrom);
-        fromUser.getFriendList().add(friendTo);
+        toUser.getFriendList().add(friendTo);
+        fromUser.getFriendList().add(friendFrom);
         friendRepository.save(friendFrom);
         friendRepository.save(friendTo);
 
@@ -91,7 +94,7 @@ public class FriendService {
     public Page<RequestListResponse> getRequestList(Long userId, Pageable pageable) {
         User user = userRepository.findById(userId)
                 .orElseThrow(UserNotFoundException::new);
-        Page<Friend> requestList = friendRepository.findByUserStudentIdAndStatusAndIsFrom(pageable, user.getStudentId(), FriendStatus.WAITING, true);
+        Page<Friend> requestList = friendRepository.findByUserStudentIdAndStatusAndIsFrom(pageable, user.getStudentId(), FriendStatus.WAITING, false);
 
         return getRequestResponses(requestList);
     }
@@ -129,16 +132,20 @@ public class FriendService {
         return requests.map(currFriend -> {
             String studentId = currFriend.getFriend().getStudentId();
             String name = currFriend.getFriend().getName();
+            Major major = currFriend.getFriend().getMajor();
             Long friendshipId = currFriend.getId();
-            return new RequestListResponse(studentId, name, friendshipId);
+            return new RequestListResponse(studentId, name, major, friendshipId);
         });
     }
 
     private Page<FriendListResponse> getFriendListResponses(Page<Friend> friends) {
         return friends.map(currFriend -> {
+            Long friendId = currFriend.getId();
             String studentId = currFriend.getFriend().getStudentId();
+            Major major = currFriend.getFriend().getMajor();
             String name = currFriend.getFriend().getName();
-            return new FriendListResponse(studentId, name);
+
+            return new FriendListResponse(friendId, studentId, major, name);
         });
     }
 
@@ -155,7 +162,7 @@ public class FriendService {
         return surveyService.getTickets(friend.getId());
     }
 
-    public List<FriendListResponse> viewSubmitByPost(Long postId, Long userId) {
+    public List<SubmitFriendListResponse> viewSubmitByPost(Long postId, Long userId) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNofFoundException::new);
 
@@ -164,13 +171,44 @@ public class FriendService {
 
         Survey survey = post.getSurvey();
 
-        return surveySubmitRepository.findBySurvey(survey).stream().map(currSubmit -> {
-                    String studentId = currSubmit.getUser().getStudentId();
-                    String name = currSubmit.getUser().getName();
+        List<Friend> friends = user.getFriendList();
+        for (Friend friend : friends) {
+            log.info("friend: ");
+            log.info(friend.getUserStudentId());
+        }
 
-                    return new FriendListResponse(studentId, name);
+        return friends.stream()
+                .filter(currFriend -> {
+                    return surveySubmitRepository.findByUserAndSurvey(
+                            userRepository.findByStudentId(currFriend.getUserStudentId())
+                            .orElseThrow(UserNotFoundException::new)
+                            , survey).isPresent();
                 })
-                .filter(currSubmit -> !currSubmit.getStudentId().equals(user.getStudentId()))
-                .toList();
+                .map(currFriend -> {
+                    User friend = userRepository.findByStudentId(currFriend.getUserStudentId())
+                            .orElseThrow(UserNotFoundException::new);
+                    return new SubmitFriendListResponse(friend.getStudentId(), friend.getMajor(), friend.getName());
+                }).toList();
+    }
+
+    public void deleteRequest(Long friendId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        Friend friend = friendRepository.findByIdAndUserStudentIdAndStatus(friendId, user.getStudentId(), FriendStatus.WAITING)
+                .orElseThrow(FriendshipNotFoundException::new);
+        friendRepository.deleteById(friend.getId());
+        friendRepository.deleteById(friend.getCounterpartId());
+    }
+
+    public void deleteFriend(Long friendshipId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        log.info(String.valueOf(friendshipId));
+        log.info(user.getStudentId());
+        Friend friend = friendRepository.findByIdAndUserStudentIdAndStatus(friendshipId, user.getStudentId(), FriendStatus.ACCEPT)
+                .orElseThrow(FriendshipNotFoundException::new);
+        friendRepository.deleteById(friend.getId());
+        friendRepository.deleteById(friend.getCounterpartId());
+
     }
 }
