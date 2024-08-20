@@ -1,5 +1,12 @@
 package org.jenga.dantong.user.model.dto.response;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Setter
+@Getter
+@NoArgsConstructor
 public class StudentInfo {
 
     private String name;

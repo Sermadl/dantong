@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import lombok.RequiredArgsConstructor;
 import org.jenga.dantong.global.util.WebUtil;
 import org.jenga.dantong.user.exception.DkuFailedLoginException;
 import org.jenga.dantong.user.model.DkuAuth;
@@ -27,7 +26,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
-@RequiredArgsConstructor
 public class DkuAuthService {
 
     private static final Pattern ERROR_ALERT_PATTERN = Pattern.compile(
@@ -36,11 +34,19 @@ public class DkuAuthService {
     @Qualifier("chromeAgentWebClient")
     private final WebClient webClient;
 
-    @Value("${dku.login.webinfo-api-path}")
     private final String webinfoLoginApiPath;
 
-    @Value("${dku.login.portal-api-path}")
     private final String portalLoginApiPath;
+
+    public DkuAuthService(WebClient webClient,
+        @Value("${dku.login.webinfo-api-path}") String webinfoLoginApiPath,
+        @Value("${dku.login.portal-api-path}") String portalLoginApiPath,
+        UserRepository userRepository) {
+        this.webClient = webClient;
+        this.webinfoLoginApiPath = webinfoLoginApiPath;
+        this.portalLoginApiPath = portalLoginApiPath;
+        this.userRepository = userRepository;
+    }
 
     private final UserRepository userRepository;
 

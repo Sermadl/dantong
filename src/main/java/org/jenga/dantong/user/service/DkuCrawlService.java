@@ -12,17 +12,20 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+@Service
 public class DkuCrawlService {
 
     private final String studentInfoPath;
 
+    @Qualifier("chromeAgentWebClient")
     private final WebClient webClient;
 
     private final String feeInfoApiPath;
 
-    public DkuCrawlService(@Qualifier WebClient webClient,
+    public DkuCrawlService(WebClient webClient,
         @Value("${dku.student-info.info-api-path}") String studentInfoPath,
         @Value("${dku.student-info.fee-api-path}") String feeInfoApiPath) {
         this.webClient = webClient;
