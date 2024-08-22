@@ -12,10 +12,12 @@ public class NotificationRequest {
     private String studentId;
     private String title;
     private String body;
+    private String url;
 
-    public NotificationRequest(String studentId, String title, String body) {
+    public NotificationRequest(String studentId, String title, String body, String url) {
         this.studentId = studentId;
         this.title = title;
         this.body = body;
+        this.url = url;
     }
 }

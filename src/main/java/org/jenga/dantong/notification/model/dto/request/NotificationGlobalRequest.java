@@ -6,7 +6,9 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class NotificationGlobalRequest {
     private String title;
     private String body;
+    private String url;
 }
