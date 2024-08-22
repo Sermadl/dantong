@@ -10,6 +10,7 @@ import org.jenga.dantong.friend.model.dto.response.SubmitFriendListResponse;
 import org.jenga.dantong.friend.service.FriendService;
 import org.jenga.dantong.global.auth.jwt.AppAuthentication;
 import org.jenga.dantong.global.base.UserAuth;
+import org.jenga.dantong.notification.service.FcmService;
 import org.jenga.dantong.survey.model.dto.response.TicketResponse;
 import org.jenga.dantong.user.repository.UserRepository;
 import org.springframework.data.domain.Page;
@@ -26,12 +27,14 @@ import java.util.List;
 public class FriendController {
     private final UserRepository userRepository;
     private final FriendService friendService;
+    private final FcmService fcmService;
 
     @UserAuth
     @PostMapping("/send/{studentId}")
     @Operation(summary = "친구 요청 보내기", description = "학번으로 친구 요청 보내기")
     public void sendRequest(@Valid @PathVariable("studentId") String studentId, AppAuthentication auth) {
         friendService.sendRequest(studentId, auth.getUserId());
+        fcmService.sendFriendNotification(studentId);
     }
 
     @UserAuth
