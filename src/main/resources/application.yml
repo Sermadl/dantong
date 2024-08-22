@@ -61,3 +61,6 @@ fcm:
   certification: ${fcm.certification}
 file:
   path: ${user.home}/
+# 알림이 쓰레드에 저장되어 있을 때 오류가 발생하지 않게 하기 위함
+server:
+  shutdown: graceful
