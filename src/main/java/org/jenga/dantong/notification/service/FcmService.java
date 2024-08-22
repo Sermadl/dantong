@@ -4,6 +4,7 @@ import com.google.firebase.messaging.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jenga.dantong.notification.model.dto.request.NotificationGlobalRequest;
 import org.jenga.dantong.notification.model.dto.request.NotificationRequest;
 import org.jenga.dantong.notification.model.dto.request.TokenRegisterRequest;
 import org.jenga.dantong.notification.model.entity.FcmNotification;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -115,6 +117,17 @@ public class FcmService implements NotificationService{
         );
     }
 
+    public void sendGlobalNotification(NotificationGlobalRequest request) throws FirebaseMessagingException {
+        List<String> tokens = fcmRepository.getAllTokens();
+
+        MulticastMessage message = MulticastMessage.builder()
+                .putData("title", request.getTitle())
+                .putData("body", request.getBody())
+                .addAllTokens(tokens)
+                .build();
+
+        FirebaseMessaging.getInstance().sendEachForMulticast(message);
+    }
 
     public void send(Message message) {
         FirebaseMessaging.getInstance().sendAsync(message);
