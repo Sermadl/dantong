@@ -1,5 +1,6 @@
 package org.jenga.dantong.post.service;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,9 @@ import org.jenga.dantong.global.s3.model.dto.FileUploadRequest;
 import org.jenga.dantong.global.s3.model.dto.RequestFile;
 import org.jenga.dantong.global.s3.service.FileUploadService;
 import org.jenga.dantong.global.util.Util;
+import org.jenga.dantong.notification.model.dto.request.NotificationGlobalRequest;
+import org.jenga.dantong.notification.model.dto.request.NotificationRequest;
+import org.jenga.dantong.notification.service.FcmService;
 import org.jenga.dantong.post.exception.PermissionDeniedException;
 import org.jenga.dantong.post.exception.PostNofFoundException;
 import org.jenga.dantong.post.model.dto.request.PostCreateRequest;
@@ -41,6 +45,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final FileUploadService fileUploadService;
+    private final FcmService fcmService;
 
     @Transactional
     public Long savePost(PostCreateRequest request, Long userId) {
@@ -60,6 +65,19 @@ public class PostService {
             saveFiles(request.getImageFiles(), post);
         }
         Post savedPost = postRepository.save(post);
+
+        if (post.getCategory().equals(Category.NOTICE)){
+            NotificationGlobalRequest notificationRequest = NotificationGlobalRequest.builder()
+                    .body("공지 알림")
+                    .title(request.getTitle())
+                    .build();
+            try {
+                fcmService.sendGlobalNotification(notificationRequest);
+            } catch (FirebaseMessagingException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         return savedPost.getPostId();
     }
 
