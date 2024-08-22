@@ -1,10 +1,12 @@
 package org.jenga.dantong.notification.controller;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jenga.dantong.global.auth.jwt.AppAuthentication;
 import org.jenga.dantong.global.base.UserAuth;
+import org.jenga.dantong.notification.model.dto.request.NotificationGlobalRequest;
 import org.jenga.dantong.notification.model.dto.request.NotificationRequest;
 import org.jenga.dantong.notification.model.dto.request.TokenRegisterRequest;
 import org.jenga.dantong.notification.service.FcmService;
@@ -39,6 +41,15 @@ public class NotificationController {
         User user = userRepository.findById(auth.getUserId())
                 .orElseThrow(UserNotFoundException::new);
         fcmService.sendNotification(request);
+    }
+
+    @UserAuth
+    @PostMapping("/sendGlobal")
+    @Operation(summary = "전체 알림 테스트")
+    public void sendGlobal(@RequestBody NotificationGlobalRequest request, AppAuthentication auth) throws FirebaseMessagingException {
+        userRepository.findById(auth.getUserId())
+                .orElseThrow(UserNotFoundException::new);
+        fcmService.sendGlobalNotification(request);
     }
 
 }
