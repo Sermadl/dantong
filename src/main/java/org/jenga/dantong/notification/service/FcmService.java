@@ -49,12 +49,26 @@ public class FcmService implements NotificationService{
 
         Message message = Message.builder()
                 .setToken(token)
-                .setNotification(Notification.builder()
-                        .setTitle("설문 등록 완료!")
-                        .setBody("신청이 완료 되었습니다.")
+                .putData("title", title)
+                .putData("body", body)
+                // 안드로이드
+                .setAndroidConfig(AndroidConfig.builder()
+                        .setNotification(AndroidNotification.builder()
+                                .setTitle(title)
+                                .setBody(body)
+                                .build())
                         .build())
-                .putData("title", "편지 도착 알림")
-                .putData("content", "편지가 도착했습니다.")
+                // 아이폰
+                .setApnsConfig(ApnsConfig.builder()
+                        .putHeader("apns-priority", "10")
+                        .setAps(Aps.builder()
+                                .setAlert(ApsAlert.builder()
+                                        .setTitle(title)
+                                        .setBody(body)
+                                        .build())
+                                .setBadge(42)
+                                .build())
+                        .build())
                 .build();
 
         send(message);
