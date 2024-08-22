@@ -54,6 +54,7 @@ public class UserController {
     }
 
     @PostMapping(path = "/reissue")
+    @UserAuth
     public RefreshTokenResponse reissue(HttpServletRequest httpServletRequest,
                                         @Valid @RequestBody RefreshTokenRequest dto) {
         return userSignupService.refreshToken(httpServletRequest, dto.getRefreshToken());

@@ -18,6 +18,7 @@ public class SurveyUserAllReplyResponse {
     public SurveyUserAllReplyResponse(Long submitId, Long surveyId, String title,
         LocalDateTime startTime, LocalDateTime endTime, String status) {
         this.submitId = submitId;
+        this.surveyId = surveyId;
         this.title = title;
         this.startTime = startTime;
         this.endTime = endTime;
