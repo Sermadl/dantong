@@ -24,11 +24,13 @@ public class FcmNotification extends BaseEntity {
     private User user;
 
     private String title;
-    private String content;
+    private String body;
+    private String url;
 
-    public FcmNotification(User user, String title, String content) {
+    public FcmNotification(User user, String title, String body, String url) {
         this.user = user;
         this.title = title;
-        this.content = content;
+        this.body = body;
+        this.url = url;
     }
 }

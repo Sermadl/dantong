@@ -4,9 +4,11 @@ import com.google.firebase.messaging.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.jenga.dantong.notification.model.dto.request.NotificationGlobalRequest;
 import org.jenga.dantong.notification.model.dto.request.NotificationRequest;
 import org.jenga.dantong.notification.model.dto.request.TokenRegisterRequest;
+import org.jenga.dantong.notification.model.dto.response.NotificationResponse;
 import org.jenga.dantong.notification.model.entity.FcmNotification;
 import org.jenga.dantong.notification.repository.FcmNotificationRepository;
 import org.jenga.dantong.notification.repository.FcmRepository;
@@ -17,7 +19,10 @@ import org.jenga.dantong.survey.exception.SurveyNotFoundException;
 import org.jenga.dantong.survey.model.entity.Survey;
 import org.jenga.dantong.survey.repository.SurveyRepository;
 import org.jenga.dantong.user.exception.UserNotFoundException;
+import org.jenga.dantong.user.model.entity.User;
 import org.jenga.dantong.user.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +53,7 @@ public class FcmService implements NotificationService{
         String token = getToken(notificationRequest.getStudentId());
         String title = notificationRequest.getTitle();
         String body = notificationRequest.getBody();
+        String url = notificationRequest.getUrl();
 
         Message message = Message.builder()
                 .setToken(token)
@@ -78,7 +84,7 @@ public class FcmService implements NotificationService{
         FcmNotification fcmNotification = new FcmNotification(
                 userRepository.findByStudentId(notificationRequest.getStudentId())
                         .orElseThrow(UserNotFoundException::new),
-                title, body
+                title, body, url
         );
         fcmNotificationRepository.save(fcmNotification);
     }
@@ -87,7 +93,8 @@ public class FcmService implements NotificationService{
         NotificationRequest notificationRequest = new NotificationRequest(
                 studentId,
                 "설문 제출 완료",
-                "설문이 성공적으로 제출되었습니다!"
+                "설문이 성공적으로 제출되었습니다!",
+                "https://dantong.site/form/my"
         );
 
         sendNotification(notificationRequest);
@@ -97,7 +104,8 @@ public class FcmService implements NotificationService{
         NotificationRequest notificationRequest = new NotificationRequest(
                 studentId,
                 "친구 요청 도착",
-                "친구 요청이 도착했습니다!"
+                "친구 요청이 도착했습니다!",
+                "https://dantong.site/friend"
         );
 
         sendNotification(notificationRequest);
@@ -123,10 +131,21 @@ public class FcmService implements NotificationService{
         MulticastMessage message = MulticastMessage.builder()
                 .putData("title", request.getTitle())
                 .putData("body", request.getBody())
+                .putData("url", request.getUrl())
                 .addAllTokens(tokens)
                 .build();
 
         FirebaseMessaging.getInstance().sendEachForMulticast(message);
+    }
+
+    public Page<NotificationResponse> getNotifications(Long userId, Pageable pageable) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFoundException::new);
+        Page<FcmNotification> notifications = fcmNotificationRepository.findByUser(user, pageable);
+
+        return notifications.map(currNoti -> {
+            return new NotificationResponse(currNoti.getTitle(), currNoti.getBody());
+        });
     }
 
     public void send(Message message) {

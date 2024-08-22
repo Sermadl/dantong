@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FcmDeviceResponse {
-    private String deviceToken;
+public class NotificationResponse {
+    String title;
+    String body;
 }

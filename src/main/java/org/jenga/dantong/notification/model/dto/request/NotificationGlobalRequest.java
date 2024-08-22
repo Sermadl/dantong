@@ -10,4 +10,5 @@ import lombok.*;
 public class NotificationGlobalRequest {
     private String title;
     private String body;
+    private String url;
 }
